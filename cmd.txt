@@ -1,0 +1,8 @@
+# train
+python main_tf.py --train --model tiny --input-size 320 --batch-size 32 --epochs 300 --data-root /root/nguyen/research/evs/data_processed --gpu 4
+
+# resume train
+python main_tf.py --train --resume --model tiny --weights-dir weights
+
+# test
+python main_tf.py --test --model tiny --input-size 320 --weights-dir weights --data-root /root/nguyen/research/evs/data_processed

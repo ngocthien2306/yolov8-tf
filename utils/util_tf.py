@@ -428,7 +428,7 @@ def learning_rate_schedule(epoch, epochs, lr0=0.01, lrf=0.01):
     Returns:
         Learning rate for current epoch
     """
-    return (1 - epoch / epochs) * (1.0 - lrf) + lrf
+    return lr0 * ((1 - epoch / epochs) * (1.0 - lrf) + lrf)
 
 
 def warmup_schedule(step, warmup_steps, lr0=0.01, warmup_bias_lr=0.1, warmup_momentum=0.8, momentum=0.937):
