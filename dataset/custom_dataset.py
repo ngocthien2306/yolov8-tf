@@ -443,9 +443,13 @@ def create_yolo_dataset(image_dir: str,
 
 
 if __name__ == "__main__":
-    # Example usage
-    train_dir = "/path/to/train/images"  # Replace with your path
-    val_dir = "/path/to/val/images"      # Replace with your path
+    # /root/nguyen/research/evs/data_aug_21_1
+    # /root/nguyen/research/evs/data_processed
+
+
+    root = "/root/nguyen/research/evs/data_processed"
+    train_dir = os.path.join(root, "train/images") 
+    val_dir = os.path.join(root, "valid/images") 
     
     try:
         # Create training dataset
@@ -468,6 +472,7 @@ if __name__ == "__main__":
         
         # Test loading a batch
         for images, targets, shapes in train_dataset.take(1):
+            print("Target: ", targets)
             print(f"Images shape: {images.shape}")
             print(f"Targets shape: {targets.shape}")
             print(f"Shapes shape: {shapes.shape}")
