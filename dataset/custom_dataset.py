@@ -41,6 +41,14 @@ class YOLOv8Dataset:
         
         print(f"Loaded {self.n} images with labels")
     
+    def __len__(self):
+        """Return the number of samples in the dataset"""
+        return self.n
+    
+    def __getitem__(self, index):
+        """Get a single sample (for compatibility with PyTorch-style indexing)"""
+        return self._load_sample(tf.constant(index))
+    
     def _get_default_params(self):
         """Default augmentation parameters"""
         return {

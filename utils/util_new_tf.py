@@ -448,7 +448,7 @@ class ComputeLoss:
         self.eps = 1e-9
         
         # DFL Loss params
-        self.dfl_ch = m.dfl.channels
+        self.dfl_ch = m.dfl_channels
         self.project = tf.range(self.dfl_ch, dtype=tf.float32)
         
     def __call__(self, outputs, targets):
