@@ -138,11 +138,14 @@ class YOLOv8Dataset:
             nl = min(nl, max_detections)  # Limit to max_detections
             targets[:nl, 1:] = labels[:nl]
         
-        # Convert HWC to CHW and BGR to RGB
+        # Convert HWC to CHW and BGR to RGB (channel-first like PyTorch)
         image = image.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
         image = np.ascontiguousarray(image, dtype=np.float32)
         
-        return image, targets, shapes
+        # Convert shapes to scalar (height * width) for TensorFlow compatibility
+        shapes_scalar = np.int32(shapes[0] * shapes[1]) if shapes.size > 1 else np.int32(0)
+        
+        return image, targets, shapes_scalar
     
     def _load_image(self, index):
         """Load and resize a single image"""

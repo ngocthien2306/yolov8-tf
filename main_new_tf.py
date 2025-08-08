@@ -118,9 +118,9 @@ def train_epoch(model, dataset, optimizer, compute_loss, epoch, args, params):
     tf_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=(
-            tf.TensorSpec(shape=(args.input_size, args.input_size, 3), dtype=tf.float32),
+            tf.TensorSpec(shape=(3, args.input_size, args.input_size), dtype=tf.float32),  # CHW format
             tf.TensorSpec(shape=(None, 6), dtype=tf.float32),  # [img_id, cls, x, y, w, h]
-            tf.TensorSpec(shape=(), dtype=tf.string)  # filename
+            tf.TensorSpec(shape=(), dtype=tf.int32)  # shapes as scalar
         )
     )
     
@@ -153,6 +153,8 @@ def train_epoch(model, dataset, optimizer, compute_loss, epoch, args, params):
         
         # Preprocess images and targets
         images = tf.cast(images, tf.float32) / 255.0
+        # Convert from CHW to HWC format for TensorFlow
+        images = tf.transpose(images, [0, 2, 3, 1])
         
         # Training step
         loss, predictions = train_step(
@@ -195,9 +197,9 @@ def validate(model, dataset, args, params):
     tf_dataset = tf.data.Dataset.from_generator(
         data_generator,
         output_signature=(
-            tf.TensorSpec(shape=(args.input_size, args.input_size, 3), dtype=tf.float32),
+            tf.TensorSpec(shape=(3, args.input_size, args.input_size), dtype=tf.float32),  # CHW format
             tf.TensorSpec(shape=(None, 6), dtype=tf.float32),
-            tf.TensorSpec(shape=(), dtype=tf.string)
+            tf.TensorSpec(shape=(), dtype=tf.int32)  # shapes as scalar
         )
     )
     
@@ -213,6 +215,8 @@ def validate(model, dataset, args, params):
     for images, targets, shapes in progress_bar:
         # Preprocess
         images = tf.cast(images, tf.float32) / 255.0
+        # Convert from CHW to HWC format for TensorFlow
+        images = tf.transpose(images, [0, 2, 3, 1])
         
         # Inference
         predictions = val_step(model, images)
@@ -286,7 +290,7 @@ def train(args, params):
     num_classes = len(params['names'])
     model = get_model(args.model, num_classes, args.input_size, training_mode=True)
     
-    # Print model summary
+    # Print model summary  
     print_model_summary(model, (None, args.input_size, args.input_size, 3))
     
     # Create datasets
