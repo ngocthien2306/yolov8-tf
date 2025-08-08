@@ -295,25 +295,18 @@ class DarkFPN(keras.layers.Layer):
         # Top-down pathway
         # P5 -> P4
         p5_upsampled = self.upsample(p5_in)
-        # Ensure spatial dimensions match by cropping or padding if necessary
-        target_h, target_w = tf.shape(p4_in)[1], tf.shape(p4_in)[2]
-        current_h, current_w = tf.shape(p5_upsampled)[1], tf.shape(p5_upsampled)[2]
-        
-        # Resize to match target dimensions if needed
-        if current_h != target_h or current_w != target_w:
-            p5_upsampled = tf.image.resize(p5_upsampled, [target_h, target_w], method='nearest')
+        # Resize to match p4_in spatial dimensions
+        target_shape = tf.shape(p4_in)[1:3]  # Get height and width
+        p5_upsampled = tf.image.resize(p5_upsampled, target_shape, method='nearest')
         
         fpn_out1 = tf.concat([p5_upsampled, p4_in], axis=-1)
         fpn_out1 = self.td_block1(fpn_out1, training=training)
         
         # P4 -> P3
         fpn_out1_upsampled = self.upsample(fpn_out1)
-        # Ensure spatial dimensions match for P3
-        target_h, target_w = tf.shape(p3_in)[1], tf.shape(p3_in)[2]
-        current_h, current_w = tf.shape(fpn_out1_upsampled)[1], tf.shape(fpn_out1_upsampled)[2]
-        
-        if current_h != target_h or current_w != target_w:
-            fpn_out1_upsampled = tf.image.resize(fpn_out1_upsampled, [target_h, target_w], method='nearest')
+        # Resize to match p3_in spatial dimensions
+        target_shape = tf.shape(p3_in)[1:3]  # Get height and width
+        fpn_out1_upsampled = tf.image.resize(fpn_out1_upsampled, target_shape, method='nearest')
         
         fpn_out2 = tf.concat([fpn_out1_upsampled, p3_in], axis=-1)
         fpn_out2 = self.td_block2(fpn_out2, training=training)
