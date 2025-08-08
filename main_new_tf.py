@@ -17,7 +17,8 @@ from utils.util_new_tf import (
     non_max_suppression, scale_boxes, compute_ap, clip_gradients,
     learning_rate_schedule, warmup_schedule
 )
-from dataset.custom_dataset import Dataset
+from dataset.custom_dataset import YOLOv8Dataset
+os.environ['CUDA_VISIBLE_DEVICES']="4"
 
 warnings.filterwarnings("ignore")
 
@@ -81,7 +82,7 @@ def create_dataset(data_root, split, input_size, params, is_training=True):
     if is_training:
         np.random.shuffle(filenames)
     
-    return Dataset(filenames, input_size, params, is_training)
+    return YOLOv8Dataset(filenames, input_size, params, is_training)
 
 
 @tf.function
@@ -269,8 +270,8 @@ def train(args, params):
     if gpus:
         try:
             # Set GPU growth
-            for gpu in gpus:
-                tf.config.experimental.set_gpu_growth_enabled(gpu, True)
+            # for gpu in gpus:
+            #     tf.config.experimental.set_gpu_growth_enabled(gpu, True)
             
             # Set specific GPU
             if args.gpu is not None:
