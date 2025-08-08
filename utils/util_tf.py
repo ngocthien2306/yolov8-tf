@@ -28,15 +28,22 @@ def make_anchors(feature_maps, strides, offset=0.5):
     anchor_points = []
     stride_tensor = []
     
-    for i, stride in enumerate(strides):
+    # Handle both tensor and list inputs for strides
+    if isinstance(strides, tf.Tensor):
+        strides_list = tf.unstack(strides)
+    else:
+        strides_list = strides
+    
+    for i in range(len(feature_maps)):
         if isinstance(feature_maps[i], tf.Tensor):
-            _, h, w, _ = feature_maps[i].shape
+            shape = tf.shape(feature_maps[i])
+            h, w = shape[1], shape[2]
         else:
-            h, w = feature_maps[i]
+            h, w = feature_maps[i][0], feature_maps[i][1]
             
         # Create grid points
-        sx = tf.range(w, dtype=tf.float32) + offset
-        sy = tf.range(h, dtype=tf.float32) + offset
+        sx = tf.range(tf.cast(w, tf.float32), dtype=tf.float32) + offset
+        sy = tf.range(tf.cast(h, tf.float32), dtype=tf.float32) + offset
         sy, sx = tf.meshgrid(sy, sx, indexing='ij')
         
         # Stack and reshape
@@ -45,7 +52,13 @@ def make_anchors(feature_maps, strides, offset=0.5):
         anchor_points.append(anchor)
         
         # Create stride tensor
-        stride_t = tf.fill([h * w, 1], stride)
+        if isinstance(strides, tf.Tensor):
+            stride_val = strides_list[i]
+        else:
+            stride_val = strides[i]
+            
+        num_anchors = tf.cast(h * w, tf.int32)
+        stride_t = tf.fill([num_anchors, 1], tf.cast(stride_val, tf.float32))
         stride_tensor.append(stride_t)
     
     return tf.concat(anchor_points, axis=0), tf.concat(stride_tensor, axis=0)
